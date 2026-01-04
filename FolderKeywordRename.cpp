@@ -4,6 +4,13 @@
 #include <vector>
 #include <cstdlib>
 #include <algorithm>
+#include <io.h>
+#include <fcntl.h>
+
+// 在 Windows 中设置控制台编码
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 namespace fs = std::filesystem;
 
@@ -15,6 +22,23 @@ struct Config {
     bool executeCommand = false;
     bool verbose = false;
 };
+
+// 设置控制台编码
+void setConsoleEncoding() {
+#ifdef _WIN32
+    // Windows 下设置控制台编码为 UTF-8
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+    
+    // 或者使用本地编码（GBK）
+    // SetConsoleOutputCP(936);
+    // SetConsoleCP(936);
+#endif
+    
+    // 对于 Linux/macOS，通常默认就是 UTF-8
+    std::locale::global(std::locale(""));
+    std::cout.imbue(std::locale());
+}
 
 // 显示帮助信息
 void showHelp() {
@@ -117,6 +141,9 @@ bool executeExternalCommand(const std::string& command, bool verbose) {
 
 // 主函数
 int main(int argc, char* argv[]) {
+    // 设置控制台编码
+    setConsoleEncoding();
+    
     Config config;
     
     // 解析命令行参数
